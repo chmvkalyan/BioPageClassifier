@@ -10,6 +10,8 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # or any {'0', '1', '2'}
 from utils import *
 
+# add comment
+
 class FacultyPagesFilteredSpider(scrapy.Spider):
     name = 'faculty_pages_filtered'
     allowed_domains = ['stanford.edu']
