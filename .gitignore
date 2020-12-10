@@ -7,6 +7,7 @@ __pycache__/
 *.so
 /bio-model/
 *.plk
+bio-model.zip
 
 # Distribution / packaging
 .Python

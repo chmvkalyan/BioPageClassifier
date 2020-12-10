@@ -204,7 +204,7 @@ def create_tensor_dataset(exported_dataframe_filename, pos_filename, neg_filenam
     test_dataset = full_dataset.skip(train_size)
     val_dataset = test_dataset.skip(val_size)
     test_dataset = test_dataset.take(test_size)
-    return train_dataset, val_dataset, test_dataset
+    return full_dataset, train_dataset, val_dataset, test_dataset
 
 
 class BioIdentifier(object):

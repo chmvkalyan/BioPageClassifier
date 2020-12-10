@@ -84,6 +84,28 @@ def create_model_complex():
     return model
 
 
+def create_lstm_model(encoder):
+    # Uses Keras Sequential Model
+    model = tf.keras.Sequential()
+    if encoder:
+        model.add(encoder)
+
+    model.add(tf.keras.layers.Embedding(
+        input_dim=len(encoder.get_vocabulary()),
+        output_dim=64,
+        mask_zero=True
+    ))
+    model.add(tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(64))),
+    model.add(tf.keras.layers.Dense(64, activation='relu')),
+    model.add(tf.keras.layers.Dense(1, activation="sigmoid"))
+
+    # Compile with Binary Cross Entropy
+    model.compile(optimizer=tf.keras.optimizers.Adam(1e-4),
+                  loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                  metrics=['acc'])
+    return model
+
+
 def evaluate_model(model_name, model, test_dataset):
     results = model.evaluate(test_dataset.batch(BATCH_SIZE), verbose=2)
     for name, value in zip(model.metrics_names, results):
@@ -92,13 +114,17 @@ def evaluate_model(model_name, model, test_dataset):
 
 def run_tensor_trainer():
     # Create training dataset
-    train_dataset, val_dataset, test_dataset = create_tensor_dataset(
+    full_dataset, train_dataset, val_dataset, test_dataset = create_tensor_dataset(
         KERAS_TRAINING_SET_NAME,
         POSITIVE_TRAINING_DATA_FILENAMES.texts_path,
         NEGATIVE_TRAINING_DATA_FILENAMES.texts_path)
 
+    # Encoding
+    encoder = tf.keras.layers.experimental.preprocessing.TextVectorization(max_tokens=800)
+    encoder.adapt(full_dataset.map(lambda text,label: text))
+
     # Create model and train
-    model = create_model_complex()
+    model = create_lstm_model(encoder=encoder)
     plot_model(model, to_file=TENSOR_MODEL_ARCH_PLOT_NAME, show_shapes=True, show_layer_names=True)
 
     # cp = tf.keras.callbacks.ModelCheckpoint(filepath='best_weights.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
