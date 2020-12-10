@@ -1,3 +1,5 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # or any {'0', '1', '2'}
 import matplotlib.pyplot as plt
 import pandas
 from os import path
@@ -21,6 +23,8 @@ from tqdm.auto import tqdm
 from nltk.stem.snowball import SnowballStemmer
 import spacy
 from tinydb import TinyDB
+
+tf.get_logger().setLevel('INFO')
 
 # Seed for numpy randomizer
 SEED = 1337
@@ -204,7 +208,7 @@ def create_tensor_dataset(exported_dataframe_filename, pos_filename, neg_filenam
     test_dataset = full_dataset.skip(train_size)
     val_dataset = test_dataset.skip(val_size)
     test_dataset = test_dataset.take(test_size)
-    return full_dataset, train_dataset, val_dataset, test_dataset
+    return train_dataset, val_dataset, test_dataset
 
 
 class BioIdentifier(object):
@@ -215,7 +219,7 @@ class BioIdentifier(object):
 
     def is_bio_text(self, text):
         processed = self._processor.process_text(text)
-        print("sentence: {}".format(processed))
+        #print("sentence: {}".format(processed))
         return self._model.predict([processed])[0][0] > self._threshold
 
     def is_bio_html_content(self, content):
